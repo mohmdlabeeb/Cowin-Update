@@ -2,22 +2,12 @@ import requests
 import re
 from datetime import datetime
 import json
-from Google import Create_Service
-import base64
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from mailjet_rest import Client
 import os
 import notify2
 from playsound import playsound
 from time import time, sleep
 
-CLIENT_SECRET = 'client_secret.json'
-API_NAME = 'gmail'
-API_VERSION = 'v1'
-SCOPES = ['https://mail.google.com/']
-
-service = Create_Service(CLIENT_SECRET,API_NAME,API_VERSION,SCOPES)
 
 def get_pin():
     pincode = input("Please enter your pincode :\n")
@@ -47,16 +37,34 @@ def send_mail(email,centers):
         centers = " "
     name = email.split("@")[0]
     message = "Vaccines availabe at %s" % centers
-    mimeMessage = MIMEMultipart()
-    mimeMessage['to'] = email
-    mimeMessage['subject'] = 'Vaccine centre available'
-    mimeMessage.attach(MIMEText(message, 'plain'))
-    raw_string = base64.urlsafe_b64encode(mimeMessage.as_bytes()).decode()
-    message = service.users().messages().send(userId='me', body={'raw': raw_string}).execute()
-
+    api_key = 'fd437d487713dfdb2d771fb4a35a9e9d'
+    api_secret = 'f20f0224f9d15b0ce1f36b98d2ddfdcc'
+    mailjet = Client(auth=(api_key, api_secret), version='v3.1')
+    data = {
+      'Messages': [
+        {
+          "From": {
+            "Email": "updatecowin@gmail.com",
+            "Name": "Update Cowin"
+          },
+          "To": [
+            {
+              "Email": email,
+              "Name": name
+            }
+          ],
+          "Subject": "Cowin vaccination center available",
+          "TextPart": message,
+          "HTMLPart": "<h3>STAY STRONG</h3><br>%s" %message,
+          "CustomID": "AppGettingStartedTest"
+        }
+      ]
+    }
+    result = mailjet.send.create(data=data)
+    print (result.status_code)
+    print (result.json())
 
 starttime = time()
-pincode = get_pin()
 centers = []
 email = input("Please enter your email :\n")
 date =  datetime.today().strftime('%d-%m-%Y')
@@ -64,15 +72,13 @@ i = 0
 while True:
     i += 1
     headers = {'User-Agent' : 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:88.0) Gecko/20100101 Firefox/88.0'}
-    response =  requests.get("https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?pincode=%s&date=%s" % (pincode, date),headers=headers)
+    response =  requests.get("https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict?district_id=305&date=%s" % date,headers=headers)
     print(response)
-    print(pincode)
     print("==========RUNNING %s============" %i)
     json_dump = json.dumps(response.json())
     center_data = json.loads(json_dump)
     for center in center_data["centers"]:
         for session in center['sessions']:
-            print(session['available_capacity'])
             if session['available_capacity'] >= 2:
                 centers.append(center['name'])
                 print(center['name'],center['address'],center['center_id'])
