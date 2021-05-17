@@ -8,7 +8,6 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from mailjet_rest import Client
 import os
-import notify2
 from playsound import playsound
 from time import time, sleep
 
@@ -76,8 +75,6 @@ while True:
             if session['available_capacity'] >= 2:
                 centers.append(center['name'])
                 print(center['name'],center['address'],center['center_id'])
-                notify2.init('Cowin')
-                n = notify2.Notification('Vaccine available',centers)
                 send_mail(email,centers)
                 playsound('beep.mp3')
                 playsound('beep.mp3')
