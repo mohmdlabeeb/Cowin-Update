@@ -56,11 +56,9 @@ def send_mail(email, centers):
 url = "https://selfregistration.cowin.gov.in/"
 starttime = time()
 centers = []
-email = input("Please enter your email :\n")
-number = input("Please enter your number")
-gecko = input("Enter the path to geckodriver")
-driver = webdriver.Firefox(
-    executable_path=gecko)
+email = "labeebshanavas@gmail.com"
+number = "9947917837"
+gecko = "/home/labeeb/Documents/geckodriver"
 date = datetime.today().strftime('%d-%m-%Y')
 i = 0
 flag = False
@@ -87,10 +85,11 @@ while True:
                     playsound('beep.mp3')
                     playsound('beep.mp3')
                     if not (flag):
+                        driver = webdriver.Firefox(executable_path=gecko)
                         driver.get(url)
                         inputElement = driver.find_element_by_id("mat-input-0")
                         inputElement.send_keys(number)
                         element = WebDriverWait(driver, 10).until(EC.invisibility_of_element_located((By.CSS_SELECTOR, '.sc-ion-loading-md-h.sc-ion-loading-md-s.md.hydrated')))
                         driver.find_element_by_css_selector(".covid-button-desktop.ion-text-center").click()
                         flag = True
-sleep(30 - time() % 30)
+    sleep(30 - time() % 30)
